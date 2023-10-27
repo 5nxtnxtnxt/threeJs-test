@@ -17,3 +17,9 @@
 body {
     margin: 0;
 }
+
+.test-div {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+}

@@ -5,6 +5,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader";
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 100);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
+scene.background = new THREE.Color(0xccffff);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -27,33 +28,42 @@ const loader = new GLTFLoader();
     console.log(scene.getObjectByName("lowpoly_treeMesh"));
 }
 */
-const gltf = await loader.loadAsync("/public/tree01.glb");
+const gltf = await loader.loadAsync("/public/treeWithStar.glb");
 
-const tree = gltf.scene.children[0];
+const tree = gltf.scene;
 tree.traverse((node) => {
     if (node.isMesh) {
         node.castShadow = true;
     }
 });
-tree.scale.setX(0.1);
-tree.scale.setY(0.1);
-tree.scale.setZ(0.1);
+const scale = 0.8;
+console.log(tree.scale);
+tree.scale.setX(tree.scale.x * scale);
+tree.scale.setY(tree.scale.y * scale);
+tree.scale.setZ(tree.scale.z * scale);
 tree.castShadow = true;
 scene.add(tree);
 
 const geometry = new THREE.PlaneGeometry(1000, 1000, 1, 1);
 const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
 const cube = new THREE.Mesh(geometry, material);
-//const light = new THREE.AmbientLight(0x404040); //자연광
+const light = new THREE.AmbientLight(0x404040); //자연광
 const light1 = new THREE.HemisphereLight(0xb1e1ff, 0xb97a20, 1);
-const light2 = new THREE.PointLight(0x996600, 2000);
+const light2 = new THREE.PointLight(0x996600, 1000);
+const light3 = new THREE.PointLight(0x996600, 400);
 const helper = new THREE.PointLightHelper(light2, 1, 0x0000ff);
 
 light2.castShadow = true;
 light2.shadow.mapSize.width = 2048;
 light2.shadow.mapSize.height = 2048;
 light2.shadow.radius = 8;
-light2.position.set(5, 30, 5);
+light2.position.set(5, 9, 5);
+
+light3.castShadow = true;
+light3.shadow.mapSize.width = 2048;
+light3.shadow.mapSize.height = 2048;
+light3.shadow.radius = 8;
+light3.position.set(0, 11, 5);
 
 cube.rotateX(-0.5 * Math.PI);
 cube.position.y = 0;
@@ -74,13 +84,15 @@ const cube2 = new THREE.Mesh(geo2, material2);
 cube2.castShadow = true;
 cube2.position.setY(3);
 
+scene.add(light);
 scene.add(light1);
 //scene.add(cube2);
 scene.add(light2);
-scene.add(helper);
+scene.add(light3);
+//scene.add(helper);
 scene.add(cube);
 
-const snows = Array.from(Array(30), createSnow);
+const snows = Array.from(Array(100), createSnow);
 // const snows = new THREE.Mesh(snowGeo, snowMat);
 // snows.position.setX(Math.random() * 5);
 // snows.position.setY(3);
@@ -95,9 +107,9 @@ function createSnow() {
     const snowMat = new THREE.MeshToonMaterial({ color: 0xffffff });
     const snows = new THREE.Mesh(snowGeo, snowMat);
     snows.castShadow = true;
-    snows.position.setX(-5 + Math.random() * 10);
+    snows.position.setX(-5 + Math.random() * 30);
     snows.position.setY(10 + Math.random() * 10);
-    snows.position.setZ(-5 + Math.random() * 10);
+    snows.position.setZ(-5 + Math.random() * 30);
     return snows;
 }
 console.log(camera);
@@ -121,6 +133,12 @@ window.addEventListener("mouseup", (event) => {
 window.addEventListener("wheel", (event) => {
     console.log(event.deltaY);
     radi = radi + event.deltaY / 100;
+    if (radi < 5) {
+        radi = 5;
+    }
+    if (radi > 30) {
+        radi = 30;
+    }
 
     camera.position.x = Math.cos((angle * Math.PI) / 180) * radi;
     camera.position.z = Math.sin((angle * Math.PI) / 180) * radi;
@@ -141,6 +159,7 @@ window.addEventListener("mousemove", (event) => {
 
     //console.log(cursor.y);
 });
+
 function animate() {
     //snows.position.setY(snows.position.y - 0.03);
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -163,3 +182,9 @@ function animate() {
 }
 
 animate();
+
+const $testDOM = document.createElement("button");
+$testDOM.classList.add("test-div");
+$testDOM.textContent = "테스트버튼";
+
+document.body.appendChild($testDOM);
